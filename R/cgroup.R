@@ -6,7 +6,7 @@
 #' @return You have a long way to go
 #' @export
 
-cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = NULL){
+cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = NULL, impute = FALSE){
 
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("Package \"dplyr\" needed for this function to work. Please install it.",
@@ -33,9 +33,15 @@ cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = N
   }
 
 
-as.tibble(data)
+
+data <- as.tibble(data)
+
+if (impute == FALSE) {
+  data %>%
+    group_by()
 
 
+}
 
 
 

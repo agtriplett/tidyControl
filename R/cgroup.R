@@ -6,7 +6,7 @@
 #' @return You have a long way to go
 #' @export
 
-cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = NULL, impute = FALSE){
+cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = NULL, impute = NULL){
 
   if (!requireNamespace("dplyr", quietly = TRUE)) {
     stop("Package \"dplyr\" needed for this function to work. Please install it.",
@@ -33,15 +33,33 @@ cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = N
   }
 
 
+  dq <- data %>%
+    group_by(id) %>%
+    summarise(count = n())
+  imp <- case_when(dq, sum(count<max(count)) > 0 ~ 1,
+                   TRUE ~ 0)
 
-data <- as.tibble(data)
-
-if (impute == FALSE) {
-  data %>%
-    group_by()
 
 
-}
+  if (is.null(impute) & imp == 1) {
+  stop("You have varying data points per id and have chosen not to impute missing values")
+  }
+
+  if(!is.null(impute) & imp == 1){
+    data <- merge(
+      expand.grid(group=unique(data$group.var), time=unique(data$date)),
+      data, all=TRUE)
+
+    for(i in names(match.var)) {
+      data <- data %>%
+        replace_na(impute(i, na.rm = T))
+      }
+
+
+
+
+
+  }
 
 
 

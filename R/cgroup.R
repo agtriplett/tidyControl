@@ -13,6 +13,12 @@ cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = N
          call. = FALSE)
   }
 
+  if (!requireNamespace("tidyr", quietly = TRUE)) {
+    stop("Package \"tidyr\" needed for this function to work. Please install it.",
+         call. = FALSE)
+  }
+
+
   if (is.null(group.var)) {
     data %>%
       mutate(group.var = 1)
@@ -27,7 +33,7 @@ cgroup <- function(data, test.ids = NULL, n = 1, match.var = NULL, group.var = N
   }
 
 
-
+as.tibble(data)
 
 
 

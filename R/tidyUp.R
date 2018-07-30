@@ -16,15 +16,18 @@
 #'
 tidyUp <- function(data, impute = NULL) {
 
-if (sum(colnames(data) %in% c("id", "timepoint"))>0) {
+if (sum(c("id", "timepoint") %in% names(data)) > ncol(data)-2) {
   stop("You must have a variable named 'id' and 'timepoint' in your dataframe.")
   }
 
   dq <- data %>%
     group_by(id) %>%
     summarise(count = n())
-  imp <- case_when(dq, sum(count < max(count)) > 0 ~ 1,
-                   TRUE ~ 0) %>%
+  
+  dq.max <- max(dq$count)
+  
+  imp <- case_when(sum(dq$count < dq.max) > 0 ~ 1,
+                   sum(dq$count < dq.max) == 0 ~ 0)
 
   if (is.null(impute) & imp == 1) {
     stop("You have varying data points per id and have chosen not to impute missing values")
@@ -47,11 +50,11 @@ if (sum(colnames(data) %in% c("id", "timepoint"))>0) {
          variable.name = "metric",
          value.name = "value")
 
-  setClass("ctrlClass", representation(id = "integer",
-                                       timepoint = "date",
-                                       metric = "character",
-                                       value = "numeric"))
-  class(data) <- "ctrlClass"
+  # setClass("ctrlClass", representation(id = "integer",
+  #                                      timepoint = "date",
+  #                                      metric = "character",
+  #                                      value = "numeric"))
+  # class(data) <- "ctrlClass"
 
   return(data)
 }

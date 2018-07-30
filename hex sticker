@@ -1,0 +1,8 @@
+library(hexSticker)
+
+hexurl <- 'https://fcit.usf.edu/matrix/wp-content/uploads/2016/12/Control.png'
+
+
+sticker(hexurl, package = "tidy", p_size=24, s_x=1, s_y=.75, s_width=.6,
+        h_fill = "#007DB5", h_color = "gray",p_color = "black",
+        filename = "c:/users/triplea/desktop/tidyCtrl.png")

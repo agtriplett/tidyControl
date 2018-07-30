@@ -5,7 +5,6 @@
 #' @param n
 #' @param match.var
 #' @param group.var
-#' @param impute
 #' @param keep.match.vars
 #'
 #' @return
@@ -30,6 +29,9 @@ match <-  function(data,
            call. = FALSE)
     }
 
+    if (class(data)!= "ctrlClass") {
+      stop("Data is not ctrlClass, pre-process dataframe through the tidyUp function.")
+      }
 
     if (is.null(group.var)) {
       data %>%
@@ -46,33 +48,9 @@ match <-  function(data,
       stop("At least one test id is required for this function to work.")
     }
 
-
-    dq <- data %>%
-      group_by(id) %>%
-      summarise(count = n())
-    imp <- case_when(dq, sum(count < max(count)) > 0 ~ 1,
-                     TRUE ~ 0)
-
-    if (is.null(impute) & imp == 1) {
-      stop("You have varying data points per id and have chosen not to impute missing values")
-    }
-
-    if (!is.null(impute) & imp == 1) {
-      data <- merge(expand.grid(group = unique(data$id),
-                                time = unique(data$date)),
-                    data,
-                    all = TRUE)
-
-      for (i in names(match.var)) {
-        data <- data %>%
-          replace_na(impute(i, na.rm = T))
-      }
-    }
-
-    outut <- 1
-
-
-
+    out <- tapply(data, list(as.factor(test.ids)), score())
+    output <- out %>%
+      filter(rank <= n)
 
       return(print(output))
   }

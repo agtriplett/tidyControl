@@ -14,10 +14,32 @@
 #' test <- tidyUp(data)
 #' head(test)
 #'
-tidyUp <- function(data) {
+tidyUp <- function(data, impute = NULL) {
 
 if (sum(colnames(data) %in% c("id", "timepoint"))>0) {
   stop("You must have a variable named 'id' and 'timepoint' in your dataframe.")
+  }
+
+  dq <- data %>%
+    group_by(id) %>%
+    summarise(count = n())
+  imp <- case_when(dq, sum(count < max(count)) > 0 ~ 1,
+                   TRUE ~ 0) %>%
+
+  if (is.null(impute) & imp == 1) {
+    stop("You have varying data points per id and have chosen not to impute missing values")
+  }
+
+  if (!is.null(impute) & imp == 1) {
+    data <- merge(expand.grid(group = unique(data$id),
+                              time = unique(data$timepoint)),
+                  data,
+                  all = TRUE)
+
+    for (i in names(match.var)) {
+      data <- data %>%
+        replace_na(impute(i, na.rm = T))
+    }
   }
 
   data <- as.tibble(data) %>%
